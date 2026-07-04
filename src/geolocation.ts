@@ -33,7 +33,7 @@ export function setupGeolocation(map: L.Map): void {
             fillColor: "#3b82f6",
             fillOpacity: 0.9,
           })
-            .bindPopup("You are here")
+            .bindPopup("You are here. Lets get choccy'in and stuff!")
             .addTo(map);
         }
 

@@ -10,7 +10,7 @@ function escapeHtml(value: string): string {
 }
 
 export function createDirectionsUrl(lat: number, lng: number): string {
-  return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=walking`;
+  return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
 }
 
 function isDisplayTag(tag: string): boolean {
@@ -46,7 +46,9 @@ export function createPopupHtml(
   return `
     <article class="popup">
       <h2 class="popup-place">${escapeHtml(properties.place)}</h2>
-      <h3 class="popup-title">${escapeHtml(properties.title)}</h3>
+      <h3 class="popup-title">
+        <a href="${detailUrl}" target="_blank" rel="noopener noreferrer">${escapeHtml(properties.title)}</a>
+      </h3>
       ${image}
       <p class="popup-address">
         <a href="${directionsUrl}" target="_blank" rel="noopener noreferrer">${escapeHtml(properties.address)}</a>
@@ -54,7 +56,6 @@ export function createPopupHtml(
       ${tags ? `<div class="popup-tags">${tags}</div>` : ""}
       <div class="popup-links">
         <a href="${directionsUrl}" target="_blank" rel="noopener noreferrer">Directions</a>
-        <a href="${detailUrl}" target="_blank" rel="noopener noreferrer">View hot chocolate</a>
       </div>
     </article>
   `;
