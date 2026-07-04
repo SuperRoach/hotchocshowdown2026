@@ -113,6 +113,8 @@ body {
 }
 
 .info-dialog {
+  position: relative;
+  overflow: hidden;
   width: min(24rem, calc(100vw - 2rem));
   margin: auto;
   padding: 0;
@@ -123,11 +125,23 @@ body {
   box-shadow: 0 16px 40px rgb(0 0 0 / 25%);
 }
 
+.info-dialog::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("/android-chrome-512x512.png") center / cover no-repeat;
+  opacity: 0.12;
+  pointer-events: none;
+  z-index: 0;
+}
+
 .info-dialog::backdrop {
   background: rgb(28 25 23 / 45%);
 }
 
 .info-dialog-content {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
