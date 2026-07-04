@@ -12,6 +12,14 @@
         <h1>Hot Choc Showdown 2026 Map</h1>
         <div class="header-actions">
           <button
+            id="list-button"
+            type="button"
+            aria-expanded="false"
+            aria-controls="venue-list-panel"
+          >
+            List
+          </button>
+          <button
             id="info-button"
             type="button"
             class="icon-button"
@@ -31,6 +39,42 @@
       <div class="map-shell">
         <div id="map" role="application" aria-label="Hot chocolate locations map"></div>
         <p id="status" class="status status--loading" role="status">Loading locations…</p>
+        <aside
+          id="venue-list-panel"
+          class="venue-list-panel"
+          hidden
+          aria-label="Venue list"
+        >
+          <div class="venue-list-header">
+            <h2>Places</h2>
+            <div class="venue-list-header-actions">
+              <button
+                id="venue-list-sort"
+                type="button"
+                class="venue-list-sort"
+                aria-pressed="false"
+                disabled
+                title="Rate more places to be able to sort by your rating (only you can see it)"
+                aria-label="Sort by your rating"
+              >
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                  <path
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M4 6h10M4 12h7M4 18h4M17 8l3-3 3 3M20 5v14"
+                  />
+                </svg>
+              </button>
+              <button id="venue-list-close" type="button" class="venue-list-close" aria-label="Close list">
+                Close
+              </button>
+            </div>
+          </div>
+          <ol id="venue-list" class="venue-list"></ol>
+        </aside>
       </div>
       <dialog id="info-dialog" class="info-dialog">
         <form method="dialog" class="info-dialog-content">

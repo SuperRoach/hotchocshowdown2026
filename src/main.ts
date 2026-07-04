@@ -1,7 +1,8 @@
 import { setupGeolocation } from "./geolocation";
 import { setupInfoDialog } from "./info";
+import { setupVenueList, type VenueListController } from "./list";
 import { loadLocations } from "./locations";
-import { addLocationMarkers, createMap } from "./map";
+import { addLocationMarkers, createMap, openLocation } from "./map";
 import "./styles.css";
 
 function setStatus(message: string | null, kind: "loading" | "error" = "loading"): void {
@@ -28,7 +29,21 @@ async function init(): Promise<void> {
 
   try {
     const locations = await loadLocations();
-    addLocationMarkers(map, locations);
+    const venueListRef: { current: VenueListController | null } = { current: null };
+
+    const markers = addLocationMarkers(map, locations, {
+      onRatingChange: () => {
+        venueListRef.current?.refreshRatings();
+      },
+    });
+
+    venueListRef.current = setupVenueList({
+      features: locations.features,
+      onSelect: (id) => {
+        openLocation(map, markers, id);
+      },
+    });
+
     setStatus(null);
   } catch (error) {
     const message =
