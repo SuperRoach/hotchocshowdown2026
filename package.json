@@ -1,0 +1,23 @@
+{
+  "name": "hot-choc-map",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "generate:data": "tsx scripts/csv-to-geojson.ts",
+    "dev": "npm run generate:data && vite",
+    "build": "npm run generate:data && tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "leaflet": "^1.9.4"
+  },
+  "devDependencies": {
+    "@types/leaflet": "^1.9.21",
+    "@types/papaparse": "^5.5.2",
+    "papaparse": "^5.5.3",
+    "tsx": "^4.21.0",
+    "typescript": "~6.0.2",
+    "vite": "^8.1.1"
+  }
+}
