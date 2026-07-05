@@ -33,7 +33,10 @@ async function init(): Promise<void> {
 
     const markers = addLocationMarkers(map, locations, {
       onRatingChange: () => {
-        venueListRef.current?.refreshRatings();
+        venueListRef.current?.refresh();
+      },
+      onFavoriteChange: () => {
+        venueListRef.current?.refresh();
       },
     });
 

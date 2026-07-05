@@ -73,8 +73,8 @@ Configure the host to:
 
 The site needs HTTPS in production for the “Show my location” button to work.
 
-## Ratings
+## Ratings and favourites
 
-You can rate venues from **0–10** in each marker popup. Ratings are stored only in the browser’s `localStorage` on that device — they are not uploaded or shared. Clearing site data removes them.
+You can rate venues from **0–10** and star favourites in each marker popup. Ratings and stars are stored only in the browser’s `localStorage` on that device — they are not uploaded or shared. Clearing site data removes them.
 
-Use the **List** button in the header to browse numbered places. Rated venues show their score in the list.
+Use the **List** button in the header to browse numbered places. Rated venues show their score in the list; starred venues use a gold highlight. Sort toggles in the list panel can order by your ratings or favourites.

@@ -1,8 +1,9 @@
+import { hasAnyFavorites, isStarred } from "./favorites";
 import type { LocationFeature } from "./locations";
 import { getAllRatings, getRating } from "./ratings";
 
 export interface VenueListController {
-  refreshRatings: () => void;
+  refresh: () => void;
   close: () => void;
   isOpen: () => boolean;
 }
@@ -12,11 +13,12 @@ interface SetupVenueListOptions {
   onSelect: (id: string) => void;
 }
 
-type SortMode = "default" | "rating";
-
 const NO_RATINGS_TITLE =
   "Rate more places to be able to sort by your rating (only you can see it)";
 const SORT_BY_RATING_TITLE = "Sort by your rating (only you can see it)";
+const NO_FAVORITES_TITLE =
+  "Star places to show favourited hot choccy places (only you can see it)";
+const SORT_BY_FAVORITES_TITLE = "Show favourited hot choccy places";
 const SORT_BY_DEFAULT_TITLE = "Sort by default order";
 
 function escapeHtml(value: string): string {
@@ -48,7 +50,8 @@ export function setupVenueList({
   const panel = document.getElementById("venue-list-panel");
   const list = document.getElementById("venue-list");
   const closeButton = document.getElementById("venue-list-close");
-  const sortButton = document.getElementById("venue-list-sort");
+  const sortRatingButton = document.getElementById("venue-list-sort");
+  const sortStarButton = document.getElementById("venue-list-sort-star");
 
   if (
     !(button instanceof HTMLButtonElement) ||
@@ -56,13 +59,14 @@ export function setupVenueList({
     !(list instanceof HTMLOListElement)
   ) {
     return {
-      refreshRatings: () => undefined,
+      refresh: () => undefined,
       close: () => undefined,
       isOpen: () => false,
     };
   }
 
-  let sortMode: SortMode = "default";
+  let sortByRating = false;
+  let sortByStarred = false;
   const items = new Map<string, HTMLLIElement>();
 
   const setOpen = (open: boolean): void => {
@@ -75,31 +79,59 @@ export function setupVenueList({
     setOpen(false);
   };
 
-  const updateSortButton = (): void => {
-    if (!(sortButton instanceof HTMLButtonElement)) {
+  const updateRatingSortButton = (): void => {
+    if (!(sortRatingButton instanceof HTMLButtonElement)) {
       return;
     }
 
     const canSort = hasAnyRatings();
-    sortButton.disabled = !canSort;
-    sortButton.classList.toggle("is-active", canSort && sortMode === "rating");
-    sortButton.setAttribute(
+    sortRatingButton.disabled = !canSort;
+    sortRatingButton.classList.toggle("is-active", canSort && sortByRating);
+    sortRatingButton.setAttribute(
       "aria-pressed",
-      canSort && sortMode === "rating" ? "true" : "false",
+      canSort && sortByRating ? "true" : "false",
     );
 
     if (!canSort) {
-      sortButton.title = NO_RATINGS_TITLE;
-      sortButton.setAttribute("aria-label", NO_RATINGS_TITLE);
+      sortRatingButton.title = NO_RATINGS_TITLE;
+      sortRatingButton.setAttribute("aria-label", NO_RATINGS_TITLE);
       return;
     }
 
-    if (sortMode === "rating") {
-      sortButton.title = SORT_BY_DEFAULT_TITLE;
-      sortButton.setAttribute("aria-label", SORT_BY_DEFAULT_TITLE);
+    if (sortByRating) {
+      sortRatingButton.title = SORT_BY_DEFAULT_TITLE;
+      sortRatingButton.setAttribute("aria-label", SORT_BY_DEFAULT_TITLE);
     } else {
-      sortButton.title = SORT_BY_RATING_TITLE;
-      sortButton.setAttribute("aria-label", SORT_BY_RATING_TITLE);
+      sortRatingButton.title = SORT_BY_RATING_TITLE;
+      sortRatingButton.setAttribute("aria-label", SORT_BY_RATING_TITLE);
+    }
+  };
+
+  const updateStarSortButton = (): void => {
+    if (!(sortStarButton instanceof HTMLButtonElement)) {
+      return;
+    }
+
+    const canSort = hasAnyFavorites();
+    sortStarButton.disabled = !canSort;
+    sortStarButton.classList.toggle("is-active", canSort && sortByStarred);
+    sortStarButton.setAttribute(
+      "aria-pressed",
+      canSort && sortByStarred ? "true" : "false",
+    );
+
+    if (!canSort) {
+      sortStarButton.title = NO_FAVORITES_TITLE;
+      sortStarButton.setAttribute("aria-label", NO_FAVORITES_TITLE);
+      return;
+    }
+
+    if (sortByStarred) {
+      sortStarButton.title = SORT_BY_DEFAULT_TITLE;
+      sortStarButton.setAttribute("aria-label", SORT_BY_DEFAULT_TITLE);
+    } else {
+      sortStarButton.title = SORT_BY_FAVORITES_TITLE;
+      sortStarButton.setAttribute("aria-label", SORT_BY_FAVORITES_TITLE);
     }
   };
 
@@ -108,11 +140,16 @@ export function setupVenueList({
       id: feature.properties.id,
       index,
       rating: getRating(feature.properties.id),
+      starred: isStarred(feature.properties.id),
       item: items.get(feature.properties.id),
     }));
 
     rows.sort((a, b) => {
-      if (sortMode === "rating") {
+      if (sortByStarred && a.starred !== b.starred) {
+        return a.starred ? -1 : 1;
+      }
+
+      if (sortByRating) {
         const aRated = a.rating !== null;
         const bRated = b.rating !== null;
 
@@ -135,35 +172,41 @@ export function setupVenueList({
     }
   };
 
-  const refreshRatings = (): void => {
+  const refreshRowState = (): void => {
     for (const row of list.querySelectorAll<HTMLElement>("[data-location-id]")) {
       const id = row.dataset.locationId;
       if (!id) {
         continue;
       }
 
+      const starred = isStarred(id);
+      row.classList.toggle("is-starred", starred);
+
       const badge = row.querySelector(".venue-list-rating");
-      if (!(badge instanceof HTMLElement)) {
-        continue;
-      }
-
-      const rating = getRating(id);
-      if (rating === null) {
-        badge.hidden = true;
-        badge.textContent = "";
-        badge.removeAttribute("aria-label");
-      } else {
-        badge.hidden = false;
-        badge.textContent = String(rating);
-        badge.setAttribute("aria-label", `Rated ${rating} out of 10`);
+      if (badge instanceof HTMLElement) {
+        const rating = getRating(id);
+        if (rating === null) {
+          badge.hidden = true;
+          badge.textContent = "";
+          badge.removeAttribute("aria-label");
+        } else {
+          badge.hidden = false;
+          badge.textContent = String(rating);
+          badge.setAttribute("aria-label", `Rated ${rating} out of 10`);
+        }
       }
     }
 
-    if (!hasAnyRatings() && sortMode === "rating") {
-      sortMode = "default";
+    if (!hasAnyRatings() && sortByRating) {
+      sortByRating = false;
     }
 
-    updateSortButton();
+    if (!hasAnyFavorites() && sortByStarred) {
+      sortByStarred = false;
+    }
+
+    updateRatingSortButton();
+    updateStarSortButton();
     applySort();
   };
 
@@ -174,17 +217,18 @@ export function setupVenueList({
     const { id, place, title } = feature.properties;
     const number = index + 1;
     const rating = getRating(id);
+    const starred = isStarred(id);
 
     const item = document.createElement("li");
     item.className = "venue-list-item";
 
     const row = document.createElement("button");
     row.type = "button";
-    row.className = "venue-list-row";
+    row.className = `venue-list-row${starred ? " is-starred" : ""}`;
     row.dataset.locationId = id;
     row.dataset.index = String(number);
     row.innerHTML = `
-      <span class="venue-list-number">${number}</span>
+      <span class="venue-list-number${starred ? " venue-list-number--starred" : ""}">${number}</span>
       <span class="venue-list-text">
         <span class="venue-list-place">${escapeHtml(place)}</span>
         <span class="venue-list-title">${escapeHtml(title)}</span>
@@ -212,14 +256,26 @@ export function setupVenueList({
     closeButton.addEventListener("click", close);
   }
 
-  if (sortButton instanceof HTMLButtonElement) {
-    sortButton.addEventListener("click", () => {
+  if (sortRatingButton instanceof HTMLButtonElement) {
+    sortRatingButton.addEventListener("click", () => {
       if (!hasAnyRatings()) {
         return;
       }
 
-      sortMode = sortMode === "default" ? "rating" : "default";
-      updateSortButton();
+      sortByRating = !sortByRating;
+      updateRatingSortButton();
+      applySort();
+    });
+  }
+
+  if (sortStarButton instanceof HTMLButtonElement) {
+    sortStarButton.addEventListener("click", () => {
+      if (!hasAnyFavorites()) {
+        return;
+      }
+
+      sortByStarred = !sortByStarred;
+      updateStarSortButton();
       applySort();
     });
   }
@@ -231,11 +287,12 @@ export function setupVenueList({
     }
   });
 
-  updateSortButton();
+  updateRatingSortButton();
+  updateStarSortButton();
   setOpen(false);
 
   return {
-    refreshRatings,
+    refresh: refreshRowState,
     close,
     isOpen: () => !panel.hasAttribute("hidden"),
   };

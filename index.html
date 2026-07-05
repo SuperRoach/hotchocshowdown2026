@@ -54,9 +54,25 @@
             <h2>Places</h2>
             <div class="venue-list-header-actions">
               <button
+                id="venue-list-sort-star"
+                type="button"
+                class="venue-list-sort venue-list-sort--star"
+                aria-pressed="false"
+                disabled
+                title="Star places to show favourited hot choccy places (only you can see it)"
+                aria-label="Show favourited hot choccy places"
+              >
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                  <path
+                    fill="currentColor"
+                    d="M12 2.5l2.87 5.82 6.42.93-4.64 4.53 1.1 6.4L12 17.77l-5.75 3.02 1.1-6.4-4.64-4.53 6.42-.93L12 2.5z"
+                  />
+                </svg>
+              </button>
+              <button
                 id="venue-list-sort"
                 type="button"
-                class="venue-list-sort"
+                class="venue-list-sort venue-list-sort--rating"
                 aria-pressed="false"
                 disabled
                 title="Rate more places to be able to sort by your rating (only you can see it)"
