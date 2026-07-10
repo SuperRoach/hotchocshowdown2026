@@ -73,6 +73,15 @@ Configure the host to:
 
 The site needs HTTPS in production for the “Show my location” button to work.
 
+## Social link previews
+
+Open Graph and Twitter Card meta tags are in [`index.html`](index.html). At build time, `vite.config.ts` fills in your public site URL so Facebook, iMessage, Slack, etc. can show a title, description, and image when the link is shared.
+
+- **Netlify:** uses [https://hotchocshowdown2026.netlify.app](https://hotchocshowdown2026.netlify.app) by default, or Netlify’s `URL` build variable when set.
+- **Custom domain:** set `VITE_SITE_URL` to your full public URL (no trailing slash) in the host’s build environment.
+
+After deploying, test with [Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/) or similar. Use “Scrape Again” if you’ve shared the link before and the preview looks stale.
+
 ## Ratings and favourites
 
 You can rate venues from **0–10** and star favourites in each marker popup. Ratings and stars are stored only in the browser’s `localStorage` on that device — they are not uploaded or shared. Clearing site data removes them.
